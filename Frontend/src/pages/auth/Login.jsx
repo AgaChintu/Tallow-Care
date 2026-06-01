@@ -236,6 +236,20 @@ export default function Login() {
                 />
               </div>
             )}
+            {/* Forgot Password */}
+          <div style={{ textAlign: 'right', marginTop: '8px', marginBottom: '12px' }}>
+            <Link
+          to="/forgot-password"
+            style={{
+      fontSize: '14px',
+      color: '#4b7c3a',
+      textDecoration: 'none',
+      fontWeight: '500'
+    }}
+  >
+    Forgot Password?
+  </Link>
+</div>
 
             {/* Error message */}
             {error && (
