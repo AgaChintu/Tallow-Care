@@ -208,11 +208,13 @@ export default function Signup() {
     }
   };
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setLoading(true);
-      clearMessages();
-      try {
+ const googleLogin = useGoogleLogin({
+  scope: 'openid email profile',   // ← explicit: ensures access token has email+profile
+  onSuccess: async (tokenResponse) => {
+    setLoading(true);
+    clearMessages();
+    try {
+      const { data } = await authAPI.googleAuth(tokenResponse.access_token);
         const { data } = await authAPI.googleAuth(tokenResponse.access_token);
         if (data.success && data.token && data.user) {
           console.log('[Signup] ✅ Google sign-up success → saving session for:', data.user.email);
