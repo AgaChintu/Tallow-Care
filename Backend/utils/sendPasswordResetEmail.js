@@ -1,17 +1,24 @@
 import nodemailer from 'nodemailer';
 
-// ── Shared transporter (reuse for all outgoing mail) ──────────
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  requireTLS: true,
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
-});
-console.log('[sendPasswordResetEmail] transporter loaded');
+// ── Lazy factory — called inside the function, never at import time ──
+const createTransporter = () => {
+  const user = process.env.GMAIL_USER;
+  const pass = process.env.GMAIL_APP_PASSWORD;
+
+  if (!user || !pass) {
+    throw new Error(
+      '[sendPasswordResetEmail] GMAIL_USER or GMAIL_APP_PASSWORD is not set in environment variables.'
+    );
+  }
+
+  return nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    requireTLS: true,
+    auth: { user, pass },
+  });
+};
 
 /**
  * Sends a password-reset OTP email.
