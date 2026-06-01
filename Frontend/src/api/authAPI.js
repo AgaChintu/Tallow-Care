@@ -92,6 +92,16 @@ export const authAPI = {
     console.log('[authAPI] getProfile() → fetching current user profile...');
     return API.get('/auth/profile');
   },
+
+  // ── Password reset endpoints ──────────────────────────────────
+  forgotPassword: (email) =>
+    API.post('/auth/forgot-password', { email }),
+
+  verifyResetOtp: (email, otp) =>
+    API.post('/auth/verify-reset-otp', { email, otp }),
+
+  resetPassword: (email, otp, newPassword) =>
+    API.post('/auth/reset-password', { email, otp, newPassword }),
 };
 
 export default API;
