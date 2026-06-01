@@ -16,9 +16,23 @@ connectDB();
 
 
 // ── Middleware ─────────────────────────────────────
+const allowedOrigins = [
+  process.env.CLIENT_URL,           // e.g. https://tallow-care.vercel.app
+  'http://localhost:5173',           // Vite dev server
+  'http://localhost:5174',           // Vite fallback port
+].filter(Boolean);                   // remove undefined/empty entries
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: (incomingOrigin, callback) => {
+      // Allow server-to-server requests (no Origin header) and all listed origins
+      if (!incomingOrigin || allowedOrigins.includes(incomingOrigin)) {
+        callback(null, true);
+      } else {
+        console.warn(`[CORS] Blocked request from origin: ${incomingOrigin}`);
+        callback(new Error(`CORS: origin ${incomingOrigin} is not allowed.`));
+      }
+    },
     credentials: true,
   })
 );
