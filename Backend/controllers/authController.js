@@ -145,8 +145,11 @@ const verifyEmailOTP = async (req, res) => {
         message: 'OTP has expired. Please request a new one.',
       });
     }
-
+    console.log("EMAIL:", cleanEmail);
+    console.log("OTP RECEIVED:", otp);
+    console.log("OTP RECORD:", otpRecord);
     const isValid = await bcrypt.compare(otp, otpRecord.otp);
+    console.log("OTP VALID:", isValid);
     if (!isValid) {
       return res.status(400).json({
         success: false,
