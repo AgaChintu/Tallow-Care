@@ -16,6 +16,7 @@ import Contact from './pages/Contact';
 
 import Signup from './pages/auth/Signup';
 import Login from './pages/auth/Login';
+import ForgotPassword from './pages/auth/ForgotPassword'; // ← NEW
 import Dashboard from './pages/Dashboard';
 import DashboardProducts from './pages/dashboard/DashboardProducts';
 import DashboardReviews from './pages/DashboardReviews';
@@ -25,7 +26,6 @@ import useToast from './hooks/useToast';
 import { useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 
-// ── Main site layout (all existing pages) ──────────
 function MainSite({ showToast }) {
   return (
     <>
@@ -46,12 +46,10 @@ function MainSite({ showToast }) {
   );
 }
 
-// ── Auth layout (clean, no nav/footer) ─────────────
 function AuthLayout({ children }) {
   return <>{children}</>;
 }
 
-// ── Protected route: requires authentication ────────
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
   if (loading) return null;
@@ -65,12 +63,12 @@ export default function App() {
   return (
     <>
       <Toast message={message} visible={visible} />
-      {/* CartProvider wraps all routes so cart state is available dashboard-wide */}
       <CartProvider>
         <Routes>
           <Route path="/" element={<MainSite showToast={showToast} />} />
           <Route path="/signup" element={<AuthLayout><Signup /></AuthLayout>} />
           <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
+          <Route path="/forgot-password" element={<AuthLayout><ForgotPassword /></AuthLayout>} /> {/* ← NEW */}
           <Route
             path="/dashboard"
             element={
@@ -103,7 +101,6 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          {/* Catch-all → home */}
           <Route path="*" element={<MainSite showToast={showToast} />} />
         </Routes>
       </CartProvider>
