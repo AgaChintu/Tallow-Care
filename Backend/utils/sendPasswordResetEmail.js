@@ -31,6 +31,8 @@ export const sendPasswordResetEmail = async (to, otp, firstName = 'there') => {
   try {
     console.log('[sendPasswordResetEmail] called for:', to);
 
+    const transporter = createTransporter(); // ← fresh, validated each call
+
     const mailOptions = {
       from: `"Tallow and Care" <${process.env.GMAIL_USER}>`,
       to,
@@ -50,7 +52,6 @@ export const sendPasswordResetEmail = async (to, otp, firstName = 'there') => {
                 <table width="520" cellpadding="0" cellspacing="0"
                        style="background:#ffffff;border-radius:12px;overflow:hidden;
                               box-shadow:0 2px 12px rgba(0,0,0,0.07);">
-
                   <tr>
                     <td style="background:#4a7c59;padding:32px 40px;text-align:center;">
                       <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">
@@ -61,18 +62,15 @@ export const sendPasswordResetEmail = async (to, otp, firstName = 'there') => {
                       </p>
                     </td>
                   </tr>
-
                   <tr>
                     <td style="padding:36px 40px;">
                       <p style="margin:0 0 16px;font-size:16px;color:#3a3a3a;">
                         Hi <strong>${firstName}</strong>,
                       </p>
-
                       <p style="margin:0 0 24px;font-size:15px;color:#555;line-height:1.7;">
                         We received a request to reset the password for your account.
                         Use the code below. It expires in <strong>10 minutes</strong>.
                       </p>
-
                       <div style="text-align:center;margin:28px 0;">
                         <div style="display:inline-block;background:#f0f7f2;
                                     border:2px solid #4a7c59;
@@ -87,17 +85,14 @@ export const sendPasswordResetEmail = async (to, otp, firstName = 'there') => {
                           </span>
                         </div>
                       </div>
-
                       <p style="margin:0 0 12px;font-size:13px;color:#888;">
                         If you did not request a password reset, you can safely ignore this email.
                       </p>
-
                       <p style="margin:0;font-size:13px;color:#888;">
                         For security, never share this code with anyone.
                       </p>
                     </td>
                   </tr>
-
                   <tr>
                     <td style="background:#f7f3ee;
                                 padding:20px 40px;
@@ -108,7 +103,6 @@ export const sendPasswordResetEmail = async (to, otp, firstName = 'there') => {
                       </p>
                     </td>
                   </tr>
-
                 </table>
               </td>
             </tr>
@@ -119,13 +113,10 @@ export const sendPasswordResetEmail = async (to, otp, firstName = 'there') => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-
-    console.log('[sendPasswordResetEmail] ✅ Email sent');
-    console.log('[sendPasswordResetEmail] Message ID:', info.messageId);
-
+    console.log('[sendPasswordResetEmail] ✅ Email sent. Message ID:', info.messageId);
     return info;
   } catch (error) {
-    console.error('[sendPasswordResetEmail] ❌ Error:', error);
+    console.error('[sendPasswordResetEmail] ❌ Error:', error.message);
     throw error;
   }
 };
