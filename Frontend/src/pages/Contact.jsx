@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import API from "../api/authAPI";
 import useScrollReveal from "../hooks/useScrollReveal";
 
 export default function Contact({ showToast }) {
@@ -177,13 +177,7 @@ export default function Contact({ showToast }) {
 
     try {
 
-      const res = await axios.post(
-
-        "http://localhost:5000/contact/send",
-
-        formData
-
-      );
+      const res = await API.post("/contact/send", formData);
 
 
       clearInterval(processingTimer);
