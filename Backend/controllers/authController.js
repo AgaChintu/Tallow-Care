@@ -25,7 +25,8 @@ const verifyTurnstile = async (token) => {
   return response.data.success;
 };
 
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+// OAuth2Client is now instantiated lazily inside googleAuth() to avoid
+// capturing an undefined GOOGLE_CLIENT_ID at module load time. 
 
 // ─────────────────────────────────────────────
 // @desc   Check username availability
@@ -404,37 +405,55 @@ const googleAuth = async (req, res) => {
 
     let googleId, email, name, picture, email_verified;
 
-    try {
-      const userInfoRes = await fetch(
-        'https://www.googleapis.com/oauth2/v3/userinfo',
-        { headers: { Authorization: `Bearer ${credential}` } }
-      );
+   try {
+  // Detect token type:
+  // - Access tokens are opaque strings (NOT JWTs — they have no dots)
+  // - ID tokens are JWTs: three base64url parts separated by dots
+  const isJWT = credential.split('.').length === 3;
 
-      if (userInfoRes.ok) {
-        const userInfo = await userInfoRes.json();
-        googleId = userInfo.sub;
-        email = userInfo.email;
-        name = userInfo.name;
-        picture = userInfo.picture;
-        email_verified = userInfo.email_verified;
-        console.log(`[googleAuth] Verified via access token for: ${email}`);
-      } else {
-        const ticket = await googleClient.verifyIdToken({
-          idToken: credential,
-          audience: process.env.GOOGLE_CLIENT_ID,
-        });
-        const payload = ticket.getPayload();
-        googleId = payload.sub;
-        email = payload.email;
-        name = payload.name;
-        picture = payload.picture;
-        email_verified = payload.email_verified;
-        console.log(`[googleAuth] Verified via ID token for: ${email}`);
-      }
-    } catch (innerErr) {
-      console.error('[googleAuth] Token verification error:', innerErr.message);
-      return res.status(400).json({ success: false, message: 'Invalid Google token.' });
+  if (isJWT) {
+    // credential is an ID token (sent by GoogleLogin component)
+    const googleClientId = process.env.GOOGLE_CLIENT_ID;
+    if (!googleClientId) {
+      throw new Error('GOOGLE_CLIENT_ID is not set in environment variables.');
     }
+    const client = new OAuth2Client(googleClientId);
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: googleClientId,
+    });
+    const payload = ticket.getPayload();
+    googleId = payload.sub;
+    email = payload.email;
+    name = payload.name;
+    picture = payload.picture;
+    email_verified = payload.email_verified;
+    console.log(`[googleAuth] Verified via ID token for: ${email}`);
+  } else {
+    // credential is an access token (sent by useGoogleLogin implicit flow)
+    const userInfoRes = await fetch(
+      'https://www.googleapis.com/oauth2/v3/userinfo',
+      { headers: { Authorization: `Bearer ${credential}` } }
+    );
+
+    if (!userInfoRes.ok) {
+      const errText = await userInfoRes.text();
+      console.error(`[googleAuth] userinfo endpoint returned ${userInfoRes.status}:`, errText);
+      throw new Error(`Google userinfo returned ${userInfoRes.status}: ${errText}`);
+    }
+
+    const userInfo = await userInfoRes.json();
+    googleId = userInfo.sub;
+    email = userInfo.email;
+    name = userInfo.name;
+    picture = userInfo.picture;
+    email_verified = userInfo.email_verified;
+    console.log(`[googleAuth] Verified via access token for: ${email}`);
+  }
+} catch (innerErr) {
+  console.error('[googleAuth] Token verification error:', innerErr.message);
+  return res.status(400).json({ success: false, message: 'Invalid Google token. Please try again.' });
+}
 
     if (!email_verified) {
       return res.status(400).json({
