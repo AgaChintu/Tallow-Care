@@ -8,6 +8,14 @@ import App from './App.jsx'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
+if (!GOOGLE_CLIENT_ID) {
+  console.error(
+    '[main] ⚠️  VITE_GOOGLE_CLIENT_ID is not set. ' +
+    'Google OAuth will fail. Add it to your .env file (local) ' +
+    'or to your Vercel environment variables (production).'
+  );
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
