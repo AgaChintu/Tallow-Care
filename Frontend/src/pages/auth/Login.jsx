@@ -107,12 +107,14 @@ export default function Login() {
     }
   };
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      console.log('[Login] Google OAuth success → sending access token to backend...');
-      setLoading(true);
-      setError('');
-      try {
+ const googleLogin = useGoogleLogin({
+  scope: 'openid email profile',   // ← explicit: ensures access token has email+profile
+  onSuccess: async (tokenResponse) => {
+    console.log('[Login] Google OAuth success → sending access token to backend...');
+    setLoading(true);
+    setError('');
+    try {
+      const { data } = await authAPI.googleAuth(tokenResponse.access_token);
         const { data } = await authAPI.googleAuth(tokenResponse.access_token);
         console.log('[Login] Google auth backend response:', data);
 
