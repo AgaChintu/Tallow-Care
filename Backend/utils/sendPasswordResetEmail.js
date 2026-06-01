@@ -2,10 +2,13 @@ import nodemailer from 'nodemailer';
 
 // ── Shared transporter (reuse for all outgoing mail) ──────────
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false,
+  family: 4, // IPv4 force
   auth: {
-    user: process.env.EMAIL,
-    pass: process.env.EMAIL_PASS, // Gmail App Password (not your account password)
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
   },
 });
 
