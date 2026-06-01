@@ -3,14 +3,16 @@ import nodemailer from 'nodemailer';
 // Create Gmail transporter using App Password
 const createTransporter = () => {
   return nodemailer.createTransport({
-    service: 'gmail',
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    requireTLS: true,
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_APP_PASSWORD,
     },
   });
 };
-
 /**
  * Sends an OTP verification email
  * @param {string} toEmail - Recipient email address
