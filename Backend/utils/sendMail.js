@@ -1,6 +1,8 @@
+import fetch from "node-fetch";
+
 export const sendOTPEmail = async (toEmail, otp, userName) => {
   try {
-    const safeName = userName || "User";  // ✅ fallback
+    const safeName = userName || "User";
 
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
@@ -20,11 +22,7 @@ export const sendOTPEmail = async (toEmail, otp, userName) => {
           },
         ],
         subject: "Your OTP Code",
-        htmlContent: `
-          <h2>Hello ${safeName},</h2>
-          <p>Your OTP is:</p>
-          <h1>${otp}</h1>
-        `,
+        htmlContent: `<h2>Hello ${safeName}</h2><h1>${otp}</h1>`,
       }),
     });
 
@@ -37,7 +35,6 @@ export const sendOTPEmail = async (toEmail, otp, userName) => {
     }
 
   } catch (err) {
-    console.error("🔥 MAIL ERROR:", err.message);
-    throw err;
+    console.error("🔥 MAIL ERROR:", err);
   }
 };
