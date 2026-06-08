@@ -11,23 +11,17 @@ export const sendOTPEmail = async (toEmail, otp, userName = "there") => {
           name: "Tallow Care",
           email: process.env.BREVO_USER,
         },
-        to: [
-          {
-            email: toEmail,
-            name: userName,
-          },
-        ],
+        to: [{ email: toEmail, name: userName }],
         subject: "Your OTP Code",
-        textContent: `Hello ${userName}, your OTP is ${otp}`,
+        textContent: `Your OTP is ${otp}`,
       }),
     });
 
     const data = await response.json();
-
-    console.log("✅ EMAIL RESPONSE:", data);
+    console.log("EMAIL RESPONSE:", data);
 
   } catch (err) {
-    console.error("❌ MAIL ERROR:", err);
+    console.error("MAIL ERROR:", err);
     throw err;
   }
 };
