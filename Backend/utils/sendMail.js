@@ -1,3 +1,6 @@
+console.log("ENV CHECK:");
+console.log("USER:", process.env.GMAIL_USER);
+console.log("PASS:", process.env.GMAIL_APP_PASSWORD);
 import nodemailer from 'nodemailer';
 
 const createTransporter = async () => {
