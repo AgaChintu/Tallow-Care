@@ -12,10 +12,11 @@
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.19.2",
-    "node-fetch": "^3.3.2",
     "google-auth-library": "^9.15.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.4.0",
+    "node-fetch": "^3.3.2",
+    "nodemailer": "^8.0.10",
     "otp-generator": "^4.0.1"
   },
   "devDependencies": {
