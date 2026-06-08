@@ -1,14 +1,10 @@
-
-
 export const sendOTPEmail = async (toEmail, otp, userName = "there") => {
   try {
-    console.log("🔥 API KEY:", process.env.BREVO_API_KEY); // debug
-
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "api-key": process.env.BREVO_API_KEY, // 🔥 MAIN LINE
+        "api-key": process.env.BREVO_API_KEY,
       },
       body: JSON.stringify({
         sender: {
