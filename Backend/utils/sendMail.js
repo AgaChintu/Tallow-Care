@@ -1,30 +1,35 @@
-import nodemailer from "nodemailer";
+import fetch from "node-fetch";
 
 export const sendOTPEmail = async (toEmail, otp, userName = "there") => {
   try {
-    const transporter = nodemailer.createTransport({
-      host: "smtp-relay.brevo.com",
-      port: 587,
-      secure: false, // 🔥 important (587 ke saath false)
-      auth: {
-        user: process.env.BREVO_USER, // 👈 SMTP login
-        pass: process.env.BREVO_PASS, // 👈 SMTP key
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": process.env.BREVO_API_KEY, // 🔥 API key use hoga
       },
+      body: JSON.stringify({
+        sender: {
+          name: "Tallow Care",
+          email: process.env.BREVO_USER,
+        },
+        to: [
+          {
+            email: toEmail,
+            name: userName,
+          },
+        ],
+        subject: "Your OTP Code",
+        textContent: `Hello ${userName}, your OTP is ${otp}`,
+      }),
     });
 
-    const mailOptions = {
-      from: `"Tallow Care" <${process.env.BREVO_USER}>`,
-      to: toEmail,
-      subject: "Your OTP Code",
-      text: `Hello ${userName},\n\nYour OTP is: ${otp}\n\nThis OTP will expire in 5 minutes.\n\n- Tallow Care Team`,
-    };
+    const data = await response.json();
 
-    const info = await transporter.sendMail(mailOptions);
-
-    console.log("✅ EMAIL SENT:", info.response);
+    console.log("✅ EMAIL SENT:", data);
 
   } catch (err) {
-    console.error("❌ MAIL ERROR FULL:", err);
+    console.error("❌ MAIL ERROR:", err);
     throw err;
   }
 };
