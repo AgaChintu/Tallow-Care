@@ -107,26 +107,27 @@ export default function Login() {
     }
   };
 
- const googleLogin = useGoogleLogin({
-  scope: 'openid email profile',   // ← explicit: ensures access token has email+profile
-  onSuccess: async (tokenResponse) => {
-    console.log('[Login] Google OAuth success → sending access token to backend...');
-    setLoading(true);
-    setError('');
-    try {
-      const { data: googleData } = await authAPI.googleAuth(tokenResponse.access_token);
-        console.log('[Login] Google auth backend response:', data);
+  const googleLogin = useGoogleLogin({
+    scope: 'openid email profile',   // ← explicit: ensures access token has email+profile
+    onSuccess: async (tokenResponse) => {
+      console.log('[Login] Google OAuth success → sending access token to backend...');
+      setLoading(true);
+      setError('');
+      try {
+        const { data: googleData } = await authAPI.googleAuth(tokenResponse.access_token);
+        console.log('[Login] Google auth backend response:', googleData);
 
-if (googleData.success && googleData.token && googleData.user) {
-  console.log('[Login] ✅ Google login success → saving session for:', googleData.user.email);
-  const saved = saveSession(googleData.token, googleData.user);
-  if (saved) {
-    navigate('/dashboard', { replace: true });
-  }
-} else {
-  console.warn('[Login] Google auth returned success:false or missing token/user.');
-  setError(googleData.message || 'Google login failed. Please try again.');
-}
+        if (googleData.success && googleData.token && googleData.user) {
+          console.log('[Login] ✅ Google login success → saving session for:', googleData.user.email);
+          const saved = saveSession(googleData.token, googleData.user);
+          if (saved) {
+            navigate('/dashboard', { replace: true });
+          }
+        } else {
+          console.warn('[Login] Google auth returned success:false or missing token/user.');
+          setError(googleData.message || 'Google login failed. Please try again.');
+        }
+      } catch (err) {
         const message = err.response?.data?.message;
         console.warn('[Login] Google auth error →', err.response?.status, message);
         setError(message || 'Google login failed. Please try again.');
