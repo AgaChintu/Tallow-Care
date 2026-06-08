@@ -1,3 +1,4 @@
+import fetch from "node-fetch";
 export const sendOTPEmail = async (toEmail, otp, userName = "there") => {
   try {
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
