@@ -1,7 +1,7 @@
-import fetch from "node-fetch";
-
-export const sendOTPEmail = async (toEmail, otp, userName = "User") => {
+export const sendOTPEmail = async (toEmail, otp, userName) => {
   try {
+    const safeName = userName || "User";  // ✅ fallback
+
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
@@ -11,38 +11,30 @@ export const sendOTPEmail = async (toEmail, otp, userName = "User") => {
       body: JSON.stringify({
         sender: {
           name: "Tallow Care",
-          email: process.env.BREVO_USER, // ✅ MUST be verified in Brevo
+          email: process.env.BREVO_USER,
         },
         to: [
           {
             email: toEmail,
-            name: userName,
+            name: safeName,
           },
         ],
         subject: "Your OTP Code",
         htmlContent: `
-          <div style="font-family: Arial, sans-serif;">
-            <h2>Hello ${userName},</h2>
-            <p>Your OTP is:</p>
-            <h1 style="color: #2c3e50;">${otp}</h1>
-            <p>This OTP is valid for 5 minutes.</p>
-          </div>
+          <h2>Hello ${safeName},</h2>
+          <p>Your OTP is:</p>
+          <h1>${otp}</h1>
         `,
       }),
     });
 
     const data = await response.json();
 
-    // ✅ Proper status check
     if (response.status === 201) {
       console.log("✅ OTP EMAIL SENT SUCCESS");
-      console.log("📩 Message ID:", data.messageId);
     } else {
-      console.log("❌ EMAIL FAILED");
-      console.log("🔍 Response:", data);
+      console.log("❌ EMAIL FAILED", data);
     }
-
-    return data;
 
   } catch (err) {
     console.error("🔥 MAIL ERROR:", err.message);
