@@ -117,17 +117,16 @@ export default function Login() {
       const { data: googleData } = await authAPI.googleAuth(tokenResponse.access_token);
         console.log('[Login] Google auth backend response:', data);
 
-        if (data.success && data.token && data.user) {
-          console.log('[Login] ✅ Google login success → saving session for:', data.user.email);
-          const saved = saveSession(data.token, data.user);
-          if (saved) {
-            navigate('/dashboard', { replace: true });
-          }
-        } else {
-          console.warn('[Login] Google auth returned success:false or missing token/user.');
-          setError(data.message || 'Google login failed. Please try again.');
-        }
-      } catch (err) {
+if (googleData.success && googleData.token && googleData.user) {
+  console.log('[Login] ✅ Google login success → saving session for:', googleData.user.email);
+  const saved = saveSession(googleData.token, googleData.user);
+  if (saved) {
+    navigate('/dashboard', { replace: true });
+  }
+} else {
+  console.warn('[Login] Google auth returned success:false or missing token/user.');
+  setError(googleData.message || 'Google login failed. Please try again.');
+}
         const message = err.response?.data?.message;
         console.warn('[Login] Google auth error →', err.response?.status, message);
         setError(message || 'Google login failed. Please try again.');
