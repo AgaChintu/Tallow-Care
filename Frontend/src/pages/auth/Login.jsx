@@ -114,7 +114,7 @@ export default function Login() {
     setLoading(true);
     setError('');
     try {
-      const { data } = await authAPI.googleAuth(tokenResponse.access_token);
+      const { data: googleData } = await authAPI.googleAuth(tokenResponse.access_token);
         console.log('[Login] Google auth backend response:', data);
 
         if (data.success && data.token && data.user) {
