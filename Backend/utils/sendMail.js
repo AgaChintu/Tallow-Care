@@ -3,16 +3,22 @@ console.log("USER:", process.env.GMAIL_USER);
 console.log("PASS:", process.env.GMAIL_APP_PASSWORD);
 import nodemailer from 'nodemailer';
 
+import nodemailer from "nodemailer";
+
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 465, // 🔥 CHANGE (587 hata)
-  secure: true, // 🔥 IMPORTANT
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_APP_PASSWORD,
   },
-  family: 4, // 🔥 FORCE IPv4 (THIS FIXES YOUR ERROR)
+  tls: {
+    family: 4, // ✅ CORRECT PLACE
+  },
 });
+
+export default transporter;
 
   // ✅ DEBUG (must)
   try {
