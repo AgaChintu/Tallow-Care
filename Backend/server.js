@@ -22,10 +22,14 @@ const allowedOrigins = [
   'http://localhost:5174',           // Vite fallback port
 ].filter(Boolean);                   // remove undefined/empty entries
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://tallow-care.vercel.app"
+];
+
 app.use(
   cors({
     origin: (incomingOrigin, callback) => {
-      // Allow server-to-server requests (no Origin header) and all listed origins
       if (!incomingOrigin || allowedOrigins.includes(incomingOrigin)) {
         callback(null, true);
       } else {
@@ -36,7 +40,6 @@ app.use(
     credentials: true,
   })
 );
-
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
