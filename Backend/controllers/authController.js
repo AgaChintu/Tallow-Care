@@ -98,31 +98,36 @@ const sendEmailOTP = async (req, res) => {
     }
 
     await Otp.deleteMany({ email: cleanEmail });
+const otp = generateOTP();
+const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+const hashedOTP = await bcrypt.hash(otp, 10);
 
-    const otp = generateOTP();
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-    const hashedOTP = await bcrypt.hash(otp, 10);
+// Save OTP in DB
+await Otp.create({
+  email: cleanEmail,
+  otp: hashedOTP,
+  expiresAt,
+});
 
-    await Otp.create({ email: cleanEmail, otp: hashedOTP, expiresAt });
-    try {
-  await sendOTPEmail(cleanEmail, otp, fullName || 'there');
+try {
+  // Send OTP Email
+  await sendOTPEmail(cleanEmail, otp, fullName || "there");
   console.log("✅ OTP SENT SUCCESS");
+
+  // Send success response ONLY after email sent
+  return res.status(200).json({
+    success: true,
+    message: `Verification code sent to ${cleanEmail}`,
+  });
+
 } catch (err) {
   console.log("❌ OTP SEND FAIL:", err);
-  throw err;
+
+  return res.status(500).json({
+    success: false,
+    message: "Failed to send OTP. Please try again.",
+  });
 }
-
-
-    res.status(200).json({
-      success: true,
-      message: `Verification code sent to ${cleanEmail}`,
-    });
-  } catch (error) {
-    console.error('[sendEmailOTP] FULL ERROR:', error);
-    res.status(500).json({ success: false, message: 'Failed to send OTP. Please try again.' });
-  }
-};
-
 // ─────────────────────────────────────────────
 // @desc   Verify email OTP (signup)
 // @route  POST /auth/verify-email-otp
