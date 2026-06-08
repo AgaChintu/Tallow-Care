@@ -208,20 +208,20 @@ export default function Signup() {
     }
   };
 
- const googleLogin = useGoogleLogin({
-  scope: 'openid email profile',   // ← explicit: ensures access token has email+profile
-  onSuccess: async (tokenResponse) => {
-    setLoading(true);
-    clearMessages();
-    try {
-      const { data } = await authAPI.googleAuth(tokenResponse.access_token);
-        if (data.success && data.token && data.user) {
-          console.log('[Signup] ✅ Google sign-up success → saving session for:', data.user.email);
-          saveSession(data.token, data.user);
+  const googleLogin = useGoogleLogin({
+    scope: 'openid email profile',   // ← explicit: ensures access token has email+profile
+    onSuccess: async (tokenResponse) => {
+      setLoading(true);
+      clearMessages();
+      try {
+        const { data: googleData } = await authAPI.googleAuth(tokenResponse.access_token);
+        if (googleData.success && googleData.token && googleData.user) {
+          console.log('[Signup] ✅ Google sign-up success → saving session for:', googleData.user.email);
+          saveSession(googleData.token, googleData.user);
           navigate('/dashboard');
         } else {
           console.warn('[Signup] Google auth returned success:false or missing token/user.');
-          setError(data.message || 'Google sign-up failed. Please try again.');
+          setError(googleData.message || 'Google sign-up failed. Please try again.');
         }
       } catch (err) {
         const message = err.response?.data?.message;
