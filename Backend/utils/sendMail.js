@@ -3,23 +3,20 @@ import nodemailer from "nodemailer";
 export const sendOTPEmail = async (toEmail, otp, userName = "there") => {
   try {
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
+      host: "smtp-relay.brevo.com",
+      port: 587,
+      secure: false, // 🔥 important (587 ke saath false)
       auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD,
+        user: process.env.BREVO_USER, // 👈 SMTP login
+        pass: process.env.BREVO_PASS, // 👈 SMTP key
       },
-      tls: {
-        rejectUnauthorized: false // 🔥 important
-      }
     });
 
     const mailOptions = {
-      from: `"Tallow Care" <${process.env.GMAIL_USER}>`,
+      from: `"Tallow Care" <${process.env.BREVO_USER}>`,
       to: toEmail,
       subject: "Your OTP Code",
-      text: `Your OTP is ${otp}`,
+      text: `Hello ${userName},\n\nYour OTP is: ${otp}\n\nThis OTP will expire in 5 minutes.\n\n- Tallow Care Team`,
     };
 
     const info = await transporter.sendMail(mailOptions);
