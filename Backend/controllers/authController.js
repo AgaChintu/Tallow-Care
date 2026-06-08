@@ -98,36 +98,40 @@ const sendEmailOTP = async (req, res) => {
     }
 
     await Otp.deleteMany({ email: cleanEmail });
-const otp = generateOTP();
-const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-const hashedOTP = await bcrypt.hash(otp, 10);
 
-// Save OTP in DB
-await Otp.create({
-  email: cleanEmail,
-  otp: hashedOTP,
-  expiresAt,
-});
+    const otp = generateOTP();
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    const hashedOTP = await bcrypt.hash(otp, 10);
 
-try {
-  // Send OTP Email
-  await sendOTPEmail(cleanEmail, otp, fullName || "there");
-  console.log("✅ OTP SENT SUCCESS");
+    // Save OTP in DB
+    await Otp.create({
+      email: cleanEmail,
+      otp: hashedOTP,
+      expiresAt,
+    });
 
-  // Send success response ONLY after email sent
-  return res.status(200).json({
-    success: true,
-    message: `Verification code sent to ${cleanEmail}`,
-  });
+    // ── Send email — let any throw propagate to the outer catch ──────────────
+    // sendOTPEmail now THROWS on Brevo errors, so do NOT wrap it in its own
+    // try/catch here.  If it fails, the outer catch returns 500 to the client
+    // instead of a false "success".
+    await sendOTPEmail(cleanEmail, otp, fullName || "there");
 
-} catch (err) {
-  console.log("❌ OTP SEND FAIL:", err);
+    console.log(`[sendEmailOTP] ✅ OTP sent to: ${cleanEmail}`);
 
-  return res.status(500).json({
-    success: false,
-    message: "Failed to send OTP. Please try again.",
-  });
-}
+    return res.status(200).json({
+      success: true,
+      message: `Verification code sent to ${cleanEmail}`,
+    });
+
+  } catch (error) {
+    console.error("[sendEmailOTP] ❌ Failed:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to send OTP. Please try again.",
+    });
+  }
+};
+
 // ─────────────────────────────────────────────
 // @desc   Verify email OTP (signup)
 // @route  POST /auth/verify-email-otp
