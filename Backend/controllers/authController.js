@@ -104,14 +104,21 @@ const sendEmailOTP = async (req, res) => {
     const hashedOTP = await bcrypt.hash(otp, 10);
 
     await Otp.create({ email: cleanEmail, otp: hashedOTP, expiresAt });
-    await sendOTPEmail(cleanEmail, otp, fullName || 'there');
+    try {
+  await sendOTPEmail(cleanEmail, otp, fullName || 'there');
+  console.log("✅ OTP SENT SUCCESS");
+} catch (err) {
+  console.log("❌ OTP SEND FAIL:", err);
+  throw err;
+}
+
 
     res.status(200).json({
       success: true,
       message: `Verification code sent to ${cleanEmail}`,
     });
   } catch (error) {
-    console.error('[sendEmailOTP] Error:', error.message);
+    console.error('[sendEmailOTP] FULL ERROR:', error);
     res.status(500).json({ success: false, message: 'Failed to send OTP. Please try again.' });
   }
 };
